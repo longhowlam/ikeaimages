@@ -1,2 +1,2 @@
-# ikeaimages
+# ikea images
 ikea images
