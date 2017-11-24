@@ -7,9 +7,10 @@ vgg16_notop = application_vgg16(weights = 'imagenet', include_top = FALSE)
 
 
 ### Some ikea images
-i=1
+
 for(i in 1:5)
 {
+  print(i)
   img = image_load(
     paste0("images/ikea", i,".PNG"), target_size = c(224,224)
   )
@@ -29,5 +30,6 @@ for(i in 1:5)
   }
 }
 
+dim(M1)
 
-
+saveRDS(M1, "ikeafeautures.RDs")
