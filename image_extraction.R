@@ -9,19 +9,26 @@ zz = '//a[@class="productLink"]/@href'
 productLinks = html_nodes(out,xpath = zz) %>% html_text
 bedden = extractImage(productLinks, soort = "bedden")
 
-
-
-#########  Bureaus #####################################################################
-
+#########  Bureaus ###########################################################################
 link = "http://www.ikea.com/nl/nl/catalog/categories/departments/workspaces/20649/"
 out = read_html(link)
 zz = '//a[@class="productLink"]/@href'
 productLinks = html_nodes(out,xpath = zz) %>% html_text
 bureaus = extractImage(productLinks, soort = "bureaus")
 
+####### Boeken kasten #######################################################################
+link = "http://www.ikea.com/nl/nl/catalog/categories/departments/living_room/10382/"
+out = read_html(link)
+zz = '//a[@class="productLink"]/@href'
+productLinks = html_nodes(out,xpath = zz) %>% html_text
+boekenkasten = extractImage(productLinks, soort = "boekenkasten")
 
 
 
+######### combine ##################
+
+allImages = bind_rows(bedden, bureaus, boekenkasten)
+saveRDS(allImages, "AllImages.RDs")
 
 
 ##########  helper function ####################################################
