@@ -34,12 +34,14 @@ stoel = searchIkea("stoel")
 bed = searchIkea("bed")
 boekenkast = searchIkea("boekenkast")
 keuken = searchIkea("keuken")
+zitbank = searchIkea("zitbank")
 
 allImages = bind_rows(
   stoel,
   bed,
   boekenkast,
-  keuken
+  keuken,
+  zitbank
 )
 
 saveRDS(allImages, "AllImages.RDs")

@@ -44,3 +44,6 @@ for(i in 1:N)
 dim(M1)
 
 saveRDS(M1, "ikeafeautures.RDs")
+
+
+allImages2 = allImages[!allImages$remove,]
