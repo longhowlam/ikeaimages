@@ -30,8 +30,19 @@ saveRDS(allImages, "AllImages.RDs")
 ###############################################################################
 ######  op zoekpaginas scrapen #########################
 
-stoeltjes = searchIkea("stoeltje")
+stoel = searchIkea("stoel")
+bed = searchIkea("bed")
+boekenkast = searchIkea("boekenkast")
+keuken = searchIkea("keuken")
 
+allImages = bind_rows(
+  stoel,
+  bed,
+  boekenkast,
+  keuken
+)
+
+saveRDS(allImages, "AllImages.RDs")
 
 
 
@@ -95,10 +106,13 @@ searchIkeaOnePage = function(iter, baselink, query)
     
     imagefile = str_sub(img,24,str_length(img))
     
-    download.file(
-      paste0("http://www.ikea.com", img),
-      destfile = paste0("images/", imagefile),
-      quiet = TRUE
+    tryCatch(
+      download.file(
+        paste0("http://www.ikea.com", img),
+        destfile = paste0("images/", imagefile),
+        quiet = TRUE
+      ),
+      error=function(e)  flog.error("No such file")
     )
     
     outframe = bind_rows(
@@ -111,7 +125,12 @@ searchIkeaOnePage = function(iter, baselink, query)
 }
 
 
-
+fout = "http://www.ikea.com/nl/nl/images/products/norsborg-chaise-longue-element-grijs__0543521_PE654613_S4.JPG"
+tryCatch(
+  download.file(fout, destfile = "PPP.JPG", quiet = TRUE),
+  error=function(e)  flog.error("No such file")
+)
+ 
 
 #### given a main product page, extract images ##########
 
