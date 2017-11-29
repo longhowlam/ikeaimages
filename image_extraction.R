@@ -35,16 +35,21 @@ bed = searchIkea("bed")
 boekenkast = searchIkea("boekenkast")
 keuken = searchIkea("keuken")
 zitbank = searchIkea("zitbank")
+bestek = searchIkea("bestek")
+pannen = searchIkea("pannen")
+tafel = searchIkea("tafel")
+kussen = searchIkea("kussen")
 
 allImages = bind_rows(
   stoel,
   bed,
   boekenkast,
   keuken,
-  zitbank
+  zitbank,
+  bestek,
+  pannen,
+  tafel
 )
-
-saveRDS(allImages, "AllImages.RDs")
 
 
 
