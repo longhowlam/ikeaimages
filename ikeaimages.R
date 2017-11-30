@@ -48,3 +48,7 @@ saveRDS(M1, "ikeafeautures.RDs")
 
 allImages2 = allImages[!allImages$remove,]
 saveRDS(allImages2, "Allimages.RDs")
+
+
+
+tmp = distinct(allImages %>% select(link))
