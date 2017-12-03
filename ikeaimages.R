@@ -1,54 +1,93 @@
 library(keras)
 library(text2vec)
 library(stringr)
+library(dplyr)
+library(futile.logger)
+library(purrr)
+
+vgg16_notop = keras::application_vgg16(weights = 'imagenet', include_top = FALSE)
+
+#########################################################################################################
+
+### extract features from scraped ikea images that are in a data frame
+
+ikeadinegn = list(
+  keuken, stoel, boekenkast, 
+  keuken, zitbank, bestek, 
+  pannen, tafel, kussen,
+  eten, verlichting, woonacc,
+  badkamer, tuin, speelgoed, bureau
+)
+
+outALL = purrr::map(ikeadinegn, ExtractFeatures)
+
+###### combine everything ########################  
+
+# Combineer data sets
+allImages = purrr::map_df(outALL, function(x)x[[2]])
+
+# Combineer MATRICES
+
+tmp = purrr::map(outALL, function(x)x[[1]])
+zz = outALL[[1]][[1]]
+for(i in 2:length(ikeadinegn))
+{
+  zz = rbind(zz, outALL[[i]][[1]])
+}
+dim(zz)
+
+saveRDS(zz, "ikeafeautures.RDs")
+saveRDS(allImages, "Allimages.RDs")
+
+
+
+
+######  helper function ################################################################################
 
 ## import pretrained model without the fully connected top layers
-vgg16_notop = application_vgg16(weights = 'imagenet', include_top = FALSE)
-
-
-### Some ikea images
-N = dim(allImages)[1]
-allImages$remove = FALSE
-
-for(i in 1:N)
+ExtractFeatures = function(allImages)
 {
-  print(i)
-  imgf = paste0("images/", allImages$imagefile[i])
-  if(file.exists(imgf))
+  
+  N = dim(allImages)[1]
+  flog.info("start feature extraction for %s images in dataset", N)
+  
+  allImages$remove = FALSE
+  pb <- txtProgressBar(style=3)
+  
+  for(i in 1:N)
   {
-    img = image_load(
-      imgf,
-      target_size = c(224,224)
-    )
-    x = image_to_array(img)
-    
-    dim(x) <- c(1, dim(x))
-    x = imagenet_preprocess_input(x)
-    
-    # extract features
-    features = vgg16_notop %>% predict(x)
-    f1 = as.numeric(features)
-    if(i==1){
-      M1 <- as(matrix(f1, ncol = length(f1)), "dgCMatrix")
+    imgf = paste0("images/", allImages$imagefile[i])
+    if(file.exists(imgf))
+    {
+      img = image_load(
+        imgf,
+        target_size = c(224,224)
+      )
+      x = image_to_array(img)
+      
+      dim(x) <- c(1, dim(x))
+      x = imagenet_preprocess_input(x)
+      
+      # extract features
+      features = vgg16_notop %>% predict(x)
+      f1 = as.numeric(features)
+      if(i==1){
+        M1 <- as(matrix(f1, ncol = length(f1)), "dgCMatrix")
+      }
+      else{
+        M1 = rbind(M1, f1)
+      }
     }
-    else{
-      M1 = rbind(M1, f1)
+    else
+    {
+      allImages$remove[i] = TRUE
     }
+    setTxtProgressBar(pb, i/N)
   }
-  else
-  {
-    allImages$remove[i] = TRUE
-  }
+  close(pb)
+  allImages2 = allImages[!allImages$remove,]
+  flog.info("dimension featurematrix, %s", dim(M1)[1])
+  flog.info("images processed, %s", dim(allImages2)[1])
+  list(M1, allImages2)
 }
 
-dim(M1)
-
-saveRDS(M1, "ikeafeautures.RDs")
-
-
-allImages2 = allImages[!allImages$remove,]
-saveRDS(allImages2, "Allimages.RDs")
-
-
-
-tmp = distinct(allImages %>% select(link))
