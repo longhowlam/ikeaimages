@@ -6,6 +6,7 @@ library(futile.logger)
 library(purrr)
 
 vgg16_notop = keras::application_vgg16(weights = 'imagenet', include_top = FALSE)
+vgg19_notop = keras::application_vgg19(weights = 'imagenet', include_top = FALSE)
 
 #########################################################################################################
 
@@ -19,24 +20,27 @@ ikeadinegn = list(
   badkamer, tuin, speelgoed, bureau
 )
 
-outALL = purrr::map(ikeadinegn, ExtractFeatures)
+vgg16_ExtractionResults = purrr::map(ikeadinegn, ExtractFeatures)
 
-###### combine everything ########################  
+###### combine everything #####################################################  
 
 # Combineer data sets
-allImages = purrr::map_df(outALL, function(x)x[[2]])
+allImages = purrr::map_df(vgg16_ExtractionResults, function(x)x[[2]])
 
 # Combineer MATRICES
 
-tmp = purrr::map(outALL, function(x)x[[1]])
-zz = outALL[[1]][[1]]
+tmp = purrr::map(vgg16_ExtractionResults, function(x)x[[1]])
+ikeafeaturesVGG16 = vgg16_ExtractionResults[[1]][[1]]
 for(i in 2:length(ikeadinegn))
 {
-  zz = rbind(zz, outALL[[i]][[1]])
+  ikeafeaturesVGG16 = rbind(
+    ikeafeaturesVGG16,
+    vgg16_ExtractionResults[[i]][[1]]
+  )
 }
-dim(zz)
+dim(ikeafeaturesVGG16)
 
-saveRDS(zz, "ikeafeautures.RDs")
+saveRDS(ikeafeaturesVGG16, "ikeafeauturesVGG16.RDs")
 saveRDS(allImages, "Allimages.RDs")
 
 
@@ -52,8 +56,8 @@ ExtractFeatures = function(allImages)
   flog.info("start feature extraction for %s images in dataset", N)
   
   allImages$remove = FALSE
-  pb <- txtProgressBar(style=3)
   
+  pb <- txtProgressBar(style=3)
   for(i in 1:N)
   {
     imgf = paste0("images/", allImages$imagefile[i])
@@ -85,9 +89,11 @@ ExtractFeatures = function(allImages)
     setTxtProgressBar(pb, i/N)
   }
   close(pb)
+  
   allImages2 = allImages[!allImages$remove,]
   flog.info("dimension featurematrix, %s", dim(M1)[1])
   flog.info("images processed, %s", dim(allImages2)[1])
+  
   list(M1, allImages2)
 }
 

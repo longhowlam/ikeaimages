@@ -1,16 +1,16 @@
+# devtools::install_github("longhowlam/ikeaScraper")
+
 library(rvest)
 library(stringr)
 library(dplyr)
 library(futile.logger)
-
-devtools::install_github("longhowlam/ikeaScraper")
 library(IkeaScraper)
 
 ###############################################################################
 ######  Ikea serach page scrapn ###############################################
 
-stoel = searchIkea("stoel")
 bed = searchIkea("bed")
+stoel = searchIkea("stoel")
 boekenkast = searchIkea("boekenkast")
 keuken = searchIkea("keuken")
 zitbank = searchIkea("zitbank")
